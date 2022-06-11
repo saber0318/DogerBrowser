@@ -31,10 +31,9 @@ interface Props {
 }
 
 const WithCamera: ThemeFunctionComponent<Props> = props => {
-  const {isVisible, onBack = () => {}, onBarCodeRead, theme} = props;
+  const {isVisible, onBack = () => {}, onBarCodeRead = () => {}, theme} = props;
 
-  const [hasCameraPermission, setHasCameraPermission] =
-    useState<boolean>(false);
+  const [isCameraVisible, setIsCameraVisible] = useState<boolean>(false);
 
   const [cancelButtonStyle, setCancelButtonStyle] = useState<ViewStyle>({});
   const [particleDimension, setParticleDimension] = useState<{
@@ -61,7 +60,7 @@ const WithCamera: ThemeFunctionComponent<Props> = props => {
   }, [dimension]);
 
   const handleOnBack = useCallback(() => {
-    setHasCameraPermission(false);
+    setIsCameraVisible(false);
     onBack();
   }, [onBack]);
 
@@ -95,7 +94,7 @@ const WithCamera: ThemeFunctionComponent<Props> = props => {
           handleOnBack();
         },
         () => {
-          setHasCameraPermission(true);
+          setIsCameraVisible(true);
         },
       );
     }
@@ -121,20 +120,19 @@ const WithCamera: ThemeFunctionComponent<Props> = props => {
   }, [moveAnim]);
 
   useEffect(() => {
-    if (hasCameraPermission) {
+    if (isCameraVisible) {
       startAnimation();
     }
-  }, [startAnimation, hasCameraPermission]);
+  }, [startAnimation, isCameraVisible]);
 
   const handleOnBarCodeRead = (result: BarCodeReadEvent) => {
-    if (onBarCodeRead) {
-      onBarCodeRead(result);
-    }
+    handleOnBack();
+    onBarCodeRead(result);
   };
 
   return (
     <Modal
-      isVisible={hasCameraPermission}
+      isVisible={isCameraVisible}
       onBackdropPress={handleOnBack}
       onBackButtonPress={handleOnBack}
       animationIn="slideInRight"
